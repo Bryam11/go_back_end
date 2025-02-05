@@ -1,30 +1,34 @@
-# Usa una imagen base de Go para construir la aplicación
-FROM golang:1.16 as builder
+# Use a Go base image to build the application
+FROM golang:1.23 AS builder
 
-# Establece el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copia los archivos del proyecto al contenedor
+# Copy the project files to the container
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-# Descarga las dependencias y construye la aplicación
-RUN go mod tidy
-RUN go build -o teca_notifications main.go
+# 🔥 Build the application statically to avoid problemas en Alpine
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/main .
 
-# Usa una imagen base más pequeña para ejecutar la aplicación
+# Use a smaller base image to run the application
 FROM alpine:latest
 
-# Instala las dependencias necesarias
-RUN apk --no-cache add ca-certificates
-
-# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /root/
 
-# Copia el binario construido desde la imagen builder
-COPY --from=builder /app/teca_notifications .
+# Install necessary dependencies
+RUN apk --no-cache add ca-certificates
 
-# Expone el puerto en el que la aplicación se ejecutará
+# Copy the compiled binary from the builder image
+COPY --from=builder /app/main .
+
+# 🔥 Asegurar permisos de ejecución
+RUN chmod +x ./main
+
+# Expose the API port
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["./teca_notifications"]
+# Command to run the API
+CMD ["./main"]
