@@ -1,0 +1,15 @@
+# Ignora el directorio de módulos de Go
+go.mod
+go.sum
+vendor/
+
+# Ignora los archivos binarios
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Ignora los archivos de configuración del IDE
+.idea/
+.vscode/
