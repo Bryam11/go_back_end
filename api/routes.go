@@ -42,7 +42,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 
 	// Comentarios
 	r.POST("/tasks/:id/comments", CreateComment(db))
-	//r.GET("/tasks/:id/comments", GetCommentsByTask(db))
+	r.GET("/tasks/:id/comments", GetCommentsByTask(db))
 	//r.DELETE("/comments/:id", DeleteComment(db))
 
 	return r

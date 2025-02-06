@@ -294,3 +294,32 @@ func GetUsers(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, users)
 	}
 }
+
+// GetCommentsByTask godoc
+// @Summary Obtener comentarios por ID de tarea
+// @Description Obtiene una lista de comentarios asociados a una tarea específica
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Param id path int true "ID de la tarea"
+// @Success 200 {array} Comment
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /tasks/{id}/getComments [get]
+func GetCommentsByTask(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		taskID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de tarea inválido"})
+			return
+		}
+
+		var comments []Comment
+		if err := db.Where("task_id = ?", taskID).Find(&comments).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Comentarios no encontrados"})
+			return
+		}
+
+		c.JSON(http.StatusOK, comments)
+	}
+}

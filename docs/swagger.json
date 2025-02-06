@@ -235,6 +235,59 @@
                 }
             }
         },
+        "/tasks/{id}/getComments": {
+            "get": {
+                "description": "Obtiene una lista de comentarios asociados a una tarea específica",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Obtener comentarios por ID de tarea",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tarea",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Comment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/updateTasks/{id}": {
             "put": {
                 "description": "Actualiza los datos de una tarea existente",

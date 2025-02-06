@@ -291,6 +291,41 @@ paths:
       summary: Crear un nuevo comentario
       tags:
       - comments
+  /tasks/{id}/getComments:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene una lista de comentarios asociados a una tarea específica
+      parameters:
+      - description: ID de la tarea
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Comment'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Obtener comentarios por ID de tarea
+      tags:
+      - comments
   /updateTasks/{id}:
     put:
       consumes:
