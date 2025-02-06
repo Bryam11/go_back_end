@@ -14,7 +14,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 
 	// Configura CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Permite solicitudes desde el frontend
+		AllowOrigins:     []string{"http://localhost:4200"}, // Permite solicitudes desde el frontend
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
