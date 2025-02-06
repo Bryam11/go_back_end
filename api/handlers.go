@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"teca_notifications/utils" // Importa el paquete utils
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,7 @@ import (
 // @Produce json
 // @Success 200 {array} Task
 // @Failure 500 {object} map[string]string
-// @Router /tasks [get]
+// @Router /getAllTasks [get]
 func GetTasks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var tasks []Task
@@ -40,7 +41,7 @@ func GetTasks(db *gorm.DB) gin.HandlerFunc {
 // @Success 200 {object} Task
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
-// @Router /tasks/{id} [get]
+// @Router /getTasksById/{id} [get]
 func GetTaskByID(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -158,17 +159,33 @@ func LoginUser(db *gorm.DB) gin.HandlerFunc {
 // @Tags tasks
 // @Accept json
 // @Produce json
-// @Param task body Task true "Datos de la tarea"
-// @Success 201 {object} Task
+// @Param task body CreateTaskRequest true "Datos de la tarea"
+// @Success 201 {object} CreateTaskRequest
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /tasks [post]
+// @Router /createTask [post]
 func CreateTask(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var task Task
-		if err := c.ShouldBindJSON(&task); err != nil {
+		var request CreateTaskRequest
+		if err := c.ShouldBindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
+		}
+
+		dueDate, err := time.Parse(time.RFC3339, request.DueDate)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid due date format"})
+			return
+		}
+
+		task := Task{
+			Title:       request.Title,
+			Description: request.Description,
+			Status:      request.Status,
+			Priority:    request.Priority,
+			CreatedBy:   request.CreatedBy,
+			AssignedTo:  request.AssignedTo,
+			DueDate:     dueDate,
 		}
 
 		if err := db.Create(&task).Error; err != nil {
@@ -192,7 +209,7 @@ func CreateTask(db *gorm.DB) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /tasks/{id} [put]
+// @Router /updateTasks/{id} [put]
 func UpdateTask(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
@@ -255,5 +272,25 @@ func CreateComment(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, comment)
+	}
+}
+
+// GetUsers godoc
+// @Summary Obtener todos los usuarios
+// @Description Obtiene una lista de todos los usuarios
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {array} User
+// @Failure 500 {object} map[string]string
+// @Router /getAllUsers [get]
+func GetUsers(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var users []User
+		if err := db.Find(&users).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, users)
 	}
 }

@@ -27,16 +27,16 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	// Usuarios
 	r.POST("/users", RegisterUser(db))
 	r.POST("/users/login", LoginUser(db))
-	//r.GET("/users", GetUsers(db))
+	r.GET("/getAllUsers", GetUsers(db))
 	//r.GET("/users/:id", GetUserByID(db))
 	//r.PUT("/users/:id", UpdateUser(db))
 	//r.DELETE("/users/:id", DeleteUser(db))
 
 	// Tareas
-	r.POST("/tasks", CreateTask(db))
-	r.GET("/tasks", GetTasks(db))
-	r.GET("/tasks/:id", GetTaskByID(db))
-	r.PUT("/tasks/:id", UpdateTask(db))
+	r.POST("/createTask", CreateTask(db))
+	r.GET("/getAllTasks", GetTasks(db))
+	r.GET("/getTasksById/:id", GetTaskByID(db))
+	r.PUT("/updateTasks/:id", UpdateTask(db))
 	//r.DELETE("/tasks/:id", DeleteTask(db))
 	//r.GET("/users/:id/tasks", GetTasksByUser(db))
 

@@ -15,7 +15,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/tasks": {
+        "/createTask": {
+            "post": {
+                "description": "Crea una nueva tarea en el sistema",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Crear una nueva tarea",
+                "parameters": [
+                    {
+                        "description": "Datos de la tarea",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateTaskRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateTaskRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/getAllTasks": {
             "get": {
                 "description": "Obtiene una lista de todas las tareas",
                 "consumes": [
@@ -48,9 +100,11 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Crea una nueva tarea en el sistema",
+            }
+        },
+        "/getAllUsers": {
+            "get": {
+                "description": "Obtiene una lista de todos los usuarios",
                 "consumes": [
                     "application/json"
                 ],
@@ -58,33 +112,16 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tasks"
+                    "users"
                 ],
-                "summary": "Crear una nueva tarea",
-                "parameters": [
-                    {
-                        "description": "Datos de la tarea",
-                        "name": "task",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.Task"
-                        }
-                    }
-                ],
+                "summary": "Obtener todos los usuarios",
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.Task"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.User"
                             }
                         }
                     },
@@ -100,7 +137,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tasks/{id}": {
+        "/getTasksById/{id}": {
             "get": {
                 "description": "Obtiene una tarea específica por su ID",
                 "consumes": [
@@ -140,72 +177,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Actualiza los datos de una tarea existente",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tasks"
-                ],
-                "summary": "Actualizar una tarea",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID de la tarea",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Datos actualizados de la tarea",
-                        "name": "task",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.Task"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Task"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -256,6 +227,74 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/updateTasks/{id}": {
+            "put": {
+                "description": "Actualiza los datos de una tarea existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Actualizar una tarea",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tarea",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos actualizados de la tarea",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -409,6 +448,45 @@ const docTemplate = `{
                 "userID": {
                     "description": "Usuario que hizo el comentario",
                     "type": "integer"
+                }
+            }
+        },
+        "api.CreateTaskRequest": {
+            "type": "object",
+            "required": [
+                "created_by",
+                "priority",
+                "status",
+                "title"
+            ],
+            "properties": {
+                "assigned_to": {
+                    "description": "Usuario asignado",
+                    "type": "integer"
+                },
+                "created_by": {
+                    "description": "Usuario que creó la tarea",
+                    "type": "integer"
+                },
+                "description": {
+                    "description": "Descripción detallada",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "Fecha límite de la tarea",
+                    "type": "string"
+                },
+                "priority": {
+                    "description": "Prioridad (low, medium, high)",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Estado (pending, in_progress, completed)",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Título de la tarea",
+                    "type": "string"
                 }
             }
         },

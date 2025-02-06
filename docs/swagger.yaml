@@ -17,6 +17,35 @@ definitions:
         description: Usuario que hizo el comentario
         type: integer
     type: object
+  api.CreateTaskRequest:
+    properties:
+      assigned_to:
+        description: Usuario asignado
+        type: integer
+      created_by:
+        description: Usuario que creó la tarea
+        type: integer
+      description:
+        description: Descripción detallada
+        type: string
+      due_date:
+        description: Fecha límite de la tarea
+        type: string
+      priority:
+        description: Prioridad (low, medium, high)
+        type: string
+      status:
+        description: Estado (pending, in_progress, completed)
+        type: string
+      title:
+        description: Título de la tarea
+        type: string
+    required:
+    - created_by
+    - priority
+    - status
+    - title
+    type: object
   api.RegisterUserRequest:
     properties:
       email:
@@ -110,7 +139,41 @@ definitions:
 info:
   contact: {}
 paths:
-  /tasks:
+  /createTask:
+    post:
+      consumes:
+      - application/json
+      description: Crea una nueva tarea en el sistema
+      parameters:
+      - description: Datos de la tarea
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.CreateTaskRequest'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Crear una nueva tarea
+      tags:
+      - tasks
+  /getAllTasks:
     get:
       consumes:
       - application/json
@@ -133,40 +196,30 @@ paths:
       summary: Obtener todas las tareas
       tags:
       - tasks
-    post:
+  /getAllUsers:
+    get:
       consumes:
       - application/json
-      description: Crea una nueva tarea en el sistema
-      parameters:
-      - description: Datos de la tarea
-        in: body
-        name: task
-        required: true
-        schema:
-          $ref: '#/definitions/api.Task'
+      description: Obtiene una lista de todos los usuarios
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/api.Task'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            items:
+              $ref: '#/definitions/api.User'
+            type: array
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Crear una nueva tarea
+      summary: Obtener todos los usuarios
       tags:
-      - tasks
-  /tasks/{id}:
+      - users
+  /getTasksById/{id}:
     get:
       consumes:
       - application/json
@@ -199,6 +252,46 @@ paths:
       summary: Obtener una tarea por ID
       tags:
       - tasks
+  /tasks/{id}/comments:
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo comentario en una tarea
+      parameters:
+      - description: ID de la tarea
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos del comentario
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/api.Comment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.Comment'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Crear un nuevo comentario
+      tags:
+      - comments
+  /updateTasks/{id}:
     put:
       consumes:
       - application/json
@@ -243,45 +336,6 @@ paths:
       summary: Actualizar una tarea
       tags:
       - tasks
-  /tasks/{id}/comments:
-    post:
-      consumes:
-      - application/json
-      description: Crea un nuevo comentario en una tarea
-      parameters:
-      - description: ID de la tarea
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Datos del comentario
-        in: body
-        name: comment
-        required: true
-        schema:
-          $ref: '#/definitions/api.Comment'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/api.Comment'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Crear un nuevo comentario
-      tags:
-      - comments
   /users:
     post:
       consumes:
