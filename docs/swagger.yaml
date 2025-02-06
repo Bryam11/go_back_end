@@ -1,4 +1,25 @@
 definitions:
+  api.Activity:
+    properties:
+      actionDetails:
+        description: Detalles de la acción
+        type: string
+      actionType:
+        description: Tipo de acción
+        type: string
+      createdAt:
+        description: Fecha de la actividad
+        type: string
+      id:
+        description: ID único de la actividad
+        type: integer
+      taskID:
+        description: Tarea asociada
+        type: integer
+      userID:
+        description: Usuario que realizó la acción
+        type: integer
+    type: object
   api.Comment:
     properties:
       content:
@@ -16,6 +37,41 @@ definitions:
       userID:
         description: Usuario que hizo el comentario
         type: integer
+    type: object
+  api.CreateActivityRequest:
+    properties:
+      action_details:
+        description: Detalles de la acción
+        type: string
+      action_type:
+        description: Tipo de acción
+        type: string
+      task_id:
+        description: Tarea asociada
+        type: integer
+      user_id:
+        description: Usuario que realizó la acción
+        type: integer
+    required:
+    - action_type
+    - task_id
+    - user_id
+    type: object
+  api.CreateCommentRequest:
+    properties:
+      content:
+        description: Contenido del comentario
+        type: string
+      task_id:
+        description: ID de la tarea asociada
+        type: integer
+      user_id:
+        description: ID del usuario que hace el comentario
+        type: integer
+    required:
+    - content
+    - task_id
+    - user_id
     type: object
   api.CreateTaskRequest:
     properties:
@@ -252,45 +308,41 @@ paths:
       summary: Obtener una tarea por ID
       tags:
       - tasks
-  /tasks/{id}/comments:
-    post:
+  /tasks/{id}/activities:
+    get:
       consumes:
       - application/json
-      description: Crea un nuevo comentario en una tarea
+      description: Obtiene una lista de actividades asociadas a una tarea específica
       parameters:
       - description: ID de la tarea
         in: path
         name: id
         required: true
         type: integer
-      - description: Datos del comentario
-        in: body
-        name: comment
-        required: true
-        schema:
-          $ref: '#/definitions/api.Comment'
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/api.Comment'
+            items:
+              $ref: '#/definitions/api.Activity'
+            type: array
         "400":
           description: Bad Request
           schema:
             additionalProperties:
               type: string
             type: object
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Crear un nuevo comentario
+      summary: Obtener actividades por ID de tarea
       tags:
-      - comments
+      - activities
   /tasks/{id}/getComments:
     get:
       consumes:
@@ -324,6 +376,74 @@ paths:
               type: string
             type: object
       summary: Obtener comentarios por ID de tarea
+      tags:
+      - comments
+  /tasks/createActivity:
+    post:
+      consumes:
+      - application/json
+      description: Crea una nueva actividad en el sistema
+      parameters:
+      - description: Datos de la actividad
+        in: body
+        name: activity
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.CreateActivityRequest'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Crear una nueva actividad
+      tags:
+      - activities
+  /tasks/createComments:
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo comentario en una tarea
+      parameters:
+      - description: Datos del comentario
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.CreateCommentRequest'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Crear un nuevo comentario
       tags:
       - comments
   /updateTasks/{id}:

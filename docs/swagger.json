@@ -176,7 +176,59 @@
                 }
             }
         },
-        "/tasks/{id}/comments": {
+        "/tasks/createActivity": {
+            "post": {
+                "description": "Crea una nueva actividad en el sistema",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "activities"
+                ],
+                "summary": "Crear una nueva actividad",
+                "parameters": [
+                    {
+                        "description": "Datos de la actividad",
+                        "name": "activity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateActivityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateActivityRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/createComments": {
             "post": {
                 "description": "Crea un nuevo comentario en una tarea",
                 "consumes": [
@@ -191,19 +243,12 @@
                 "summary": "Crear un nuevo comentario",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID de la tarea",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "Datos del comentario",
                         "name": "comment",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.Comment"
+                            "$ref": "#/definitions/api.CreateCommentRequest"
                         }
                     }
                 ],
@@ -211,7 +256,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/api.Comment"
+                            "$ref": "#/definitions/api.CreateCommentRequest"
                         }
                     },
                     "400": {
@@ -225,6 +270,59 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/{id}/activities": {
+            "get": {
+                "description": "Obtiene una lista de actividades asociadas a una tarea específica",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "activities"
+                ],
+                "summary": "Obtener actividades por ID de tarea",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tarea",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Activity"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -468,6 +566,35 @@
         }
     },
     "definitions": {
+        "api.Activity": {
+            "type": "object",
+            "properties": {
+                "actionDetails": {
+                    "description": "Detalles de la acción",
+                    "type": "string"
+                },
+                "actionType": {
+                    "description": "Tipo de acción",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Fecha de la actividad",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID único de la actividad",
+                    "type": "integer"
+                },
+                "taskID": {
+                    "description": "Tarea asociada",
+                    "type": "integer"
+                },
+                "userID": {
+                    "description": "Usuario que realizó la acción",
+                    "type": "integer"
+                }
+            }
+        },
         "api.Comment": {
             "type": "object",
             "properties": {
@@ -489,6 +616,54 @@
                 },
                 "userID": {
                     "description": "Usuario que hizo el comentario",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.CreateActivityRequest": {
+            "type": "object",
+            "required": [
+                "action_type",
+                "task_id",
+                "user_id"
+            ],
+            "properties": {
+                "action_details": {
+                    "description": "Detalles de la acción",
+                    "type": "string"
+                },
+                "action_type": {
+                    "description": "Tipo de acción",
+                    "type": "string"
+                },
+                "task_id": {
+                    "description": "Tarea asociada",
+                    "type": "integer"
+                },
+                "user_id": {
+                    "description": "Usuario que realizó la acción",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.CreateCommentRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "task_id",
+                "user_id"
+            ],
+            "properties": {
+                "content": {
+                    "description": "Contenido del comentario",
+                    "type": "string"
+                },
+                "task_id": {
+                    "description": "ID de la tarea asociada",
+                    "type": "integer"
+                },
+                "user_id": {
+                    "description": "ID del usuario que hace el comentario",
                     "type": "integer"
                 }
             }

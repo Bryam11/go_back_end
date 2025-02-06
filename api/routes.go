@@ -41,9 +41,13 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	//r.GET("/users/:id/tasks", GetTasksByUser(db))
 
 	// Comentarios
-	r.POST("/tasks/:id/comments", CreateComment(db))
+	r.POST("/tasks/createComments", CreateComment(db))
 	r.GET("/tasks/:id/comments", GetCommentsByTask(db))
 	//r.DELETE("/comments/:id", DeleteComment(db))
+
+	// Actividades
+	r.POST("/tasks/createActivity", CreateActivity(db))
+	r.GET("/tasks/:id/activities", GetActivitiesByTask(db))
 
 	return r
 

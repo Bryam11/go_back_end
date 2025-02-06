@@ -244,27 +244,25 @@ func UpdateTask(db *gorm.DB) gin.HandlerFunc {
 // @Tags comments
 // @Accept json
 // @Produce json
-// @Param id path int true "ID de la tarea"
-// @Param comment body Comment true "Datos del comentario"
-// @Success 201 {object} Comment
+// @Param comment body CreateCommentRequest true "Datos del comentario"
+// @Success 201 {object} CreateCommentRequest
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /tasks/{id}/comments [post]
+// @Router /tasks/createComments [post]
 func CreateComment(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		taskID, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de tarea inválido"})
-			return
-		}
 
-		var comment Comment
-		if err := c.ShouldBindJSON(&comment); err != nil {
+		var request CreateCommentRequest
+		if err := c.ShouldBindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		comment.TaskID = uint(taskID)
+		comment := Comment{
+			TaskID:  request.TaskID,
+			UserID:  request.UserID,
+			Content: request.Content,
+		}
 
 		if err := db.Create(&comment).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -305,7 +303,7 @@ func GetUsers(db *gorm.DB) gin.HandlerFunc {
 // @Success 200 {array} Comment
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
-// @Router /tasks/{id}/getComments [get]
+// @Router /tasks/{id}/comments [get]
 func GetCommentsByTask(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		taskID, err := strconv.Atoi(c.Param("id"))
@@ -321,5 +319,69 @@ func GetCommentsByTask(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, comments)
+	}
+}
+
+// CreateActivity godoc
+// @Summary Crear una nueva actividad
+// @Description Crea una nueva actividad en el sistema
+// @Tags activities
+// @Accept json
+// @Produce json
+// @Param activity body CreateActivityRequest true "Datos de la actividad"
+// @Success 201 {object} CreateActivityRequest
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tasks/createActivity [post]
+func CreateActivity(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var request CreateActivityRequest
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		activity := Activity{
+			TaskID:        request.TaskID,
+			UserID:        request.UserID,
+			ActionType:    request.ActionType,
+			ActionDetails: request.ActionDetails,
+		}
+
+		if err := db.Create(&activity).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, activity)
+	}
+}
+
+// GetActivitiesByTask godoc
+// @Summary Obtener actividades por ID de tarea
+// @Description Obtiene una lista de actividades asociadas a una tarea específica
+// @Tags activities
+// @Accept json
+// @Produce json
+// @Param id path int true "ID de la tarea"
+// @Success 200 {array} Activity
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /tasks/{id}/activities [get]
+func GetActivitiesByTask(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		taskID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de tarea inválido"})
+			return
+		}
+
+		var activities []Activity
+		if err := db.Where("task_id = ?", taskID).Find(&activities).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Actividades no encontradas"})
+			return
+		}
+
+		c.JSON(http.StatusOK, activities)
 	}
 }

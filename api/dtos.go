@@ -16,3 +16,16 @@ type CreateTaskRequest struct {
 	AssignedTo  *uint  `json:"assigned_to"`                   // Usuario asignado
 	DueDate     string `json:"due_date"`                      // Fecha límite de la tarea
 }
+
+type CreateCommentRequest struct {
+	UserID  uint   `json:"user_id" binding:"required"` // ID del usuario que hace el comentario
+	Content string `json:"content" binding:"required"` // Contenido del comentario
+	TaskID  uint   `json:"task_id" binding:"required"` // ID de la tarea asociada
+}
+
+type CreateActivityRequest struct {
+	TaskID        uint   `json:"task_id" binding:"required"`     // Tarea asociada
+	UserID        uint   `json:"user_id" binding:"required"`     // Usuario que realizó la acción
+	ActionType    string `json:"action_type" binding:"required"` // Tipo de acción
+	ActionDetails string `json:"action_details"`                 // Detalles de la acción
+}
