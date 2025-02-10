@@ -14,7 +14,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 
 	// Configura CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://foro-teca.s3-website.us-east-2.amazonaws.com"}, // Permite solicitudes desde el frontend
+		AllowOrigins:     []string{"*"}, // Permite solicitudes desde el frontend
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
